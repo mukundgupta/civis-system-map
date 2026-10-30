@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Systems map · Public consultation</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<aside id="side">
+  <header>
+    <h1>Public consultation systems map</h1>
+    <p>Pick a feedback loop to isolate it. Click a variable or link to see every loop that runs through it.</p>
+  </header>
+
+  <div class="controls">
+    <div class="seg" id="typeFilter" role="tablist" aria-label="Loop type">
+      <button data-type="all" class="on">All <span id="cntAll"></span></button>
+      <button data-type="R">Reinforcing <span id="cntR"></span></button>
+      <button data-type="B">Balancing <span id="cntB"></span></button>
+    </div>
+    <input id="search" type="search" placeholder="Search loops or variables…" autocomplete="off">
+    <div id="focusChip" class="chip hidden"></div>
+  </div>
+
+  <div id="loopList" role="list"></div>
+
+  <section id="detail"></section>
+</aside>
+
+<main id="stage">
+  <svg id="svg" xmlns="http://www.w3.org/2000/svg">
+    <defs id="defs"></defs>
+    <g id="viewport">
+      <g id="edgeLayer"></g>
+      <g id="nodeLayer"></g>
+    </g>
+  </svg>
+
+  <div id="toolbar">
+    <div class="seg" id="modeSeg">
+      <button data-mode="highlight" class="on" title="Dim everything outside the selected loop">Highlight</button>
+      <button data-mode="isolate" title="Hide everything outside the selected loop and zoom to it">Isolate</button>
+    </div>
+    <button id="btnPolarity" class="tool on" title="Show + / − on links">+ / −</button>
+    <button id="btnFlow" class="tool on" title="Animate direction of flow on active links">Flow</button>
+    <button id="btnFit" class="tool" title="Zoom to the current selection (or the whole map)">Fit</button>
+    <button id="btnClear" class="tool" title="Clear selection (Esc)">Clear</button>
+    <button id="btnReset" class="tool" title="Restore the original node positions">Reset layout</button>
+  </div>
+
+  <div id="legend"></div>
+  <div id="tip" class="hidden"></div>
+</main>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
