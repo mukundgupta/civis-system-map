@@ -9,6 +9,10 @@
 <body>
 <aside id="side">
   <header>
+    <button id="sideClose" aria-label="Collapse panel" title="Collapse panel">
+      <span class="ic-desktop">&#8249;</span><span class="ic-mobile">&#8964;</span>
+    </button>
+    <div class="grip" aria-hidden="true"></div>
     <h1>Public consultation systems map</h1>
     <p>Pick a feedback loop to isolate it. Click a variable or link to see every loop that runs through it.</p>
   </header>
@@ -42,12 +46,27 @@
       <button data-mode="highlight" class="on" title="Dim everything outside the selected loop">Highlight</button>
       <button data-mode="isolate" title="Hide everything outside the selected loop and zoom to it">Isolate</button>
     </div>
-    <button id="btnPolarity" class="tool on" title="Show + / − on links">+ / −</button>
+    <button id="btnSim" class="tool" title="Turn on the live simulation: nudge a variable and watch the effect ripple round the loops">Simulate</button>
+    <button id="btnPolarity" class="tool on" title="Show the weight on each link">Weights</button>
     <button id="btnFlow" class="tool on" title="Animate direction of flow on active links">Flow</button>
     <button id="btnFit" class="tool" title="Zoom to the current selection (or the whole map)">Fit</button>
     <button id="btnClear" class="tool" title="Clear selection (Esc)">Clear</button>
     <button id="btnReset" class="tool" title="Restore the original node positions">Reset layout</button>
   </div>
+
+  <div id="simBar" class="hidden">
+    <button id="btnPlay" class="sim-btn">&#9654; Play</button>
+    <button id="btnStep" class="sim-btn ghost" title="Advance one tick">Step</button>
+    <button id="btnResetVals" class="sim-btn ghost" title="Set every variable back to its baseline">Reset values</button>
+    <label class="sim-speed">Speed
+      <input id="simSpeed" type="range" min="0.25" max="3" step="0.25" value="1">
+    </label>
+    <span class="sim-help">Drag the ▲▼ handle on a variable, or use its arrows, then watch it spread.</span>
+  </div>
+
+  <div id="weightPop" class="hidden"></div>
+
+  <button id="sideToggle" aria-label="Open loop list">&#9776; Loops</button>
 
   <div id="legend"></div>
   <div id="tip" class="hidden"></div>

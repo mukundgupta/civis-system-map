@@ -8,12 +8,17 @@
   --B: #2b7de9;
   --RB: #8b5cf6;
   --accent: #1d2433;
+  --up: #2bb673;
+  --up-ink: #1a8a54;
+  --down: #e5484d;
+  --down-ink: #c0392f;
   --font: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
 }
 
 * { box-sizing: border-box; }
 html, body { height: 100%; margin: 0; }
 body {
+  height: 100dvh;
   display: flex;
   font-family: var(--font);
   color: var(--ink);
@@ -31,9 +36,30 @@ button, input { font-family: inherit; }
   flex-direction: column;
   background: var(--panel);
   border-right: 1px solid var(--line);
-  z-index: 2;
+  z-index: 3;
+  transition: margin-left .28s ease, transform .28s ease;
 }
-#side header { padding: 20px 20px 10px; }
+body.side-closed #side { margin-left: -372px; }
+#side header { padding: 20px 52px 10px 20px; position: relative; }
+#sideClose {
+  position: absolute; top: 14px; right: 12px;
+  width: 32px; height: 32px; border-radius: 9px; border: 0;
+  background: #eef0f4; color: var(--ink); cursor: pointer;
+  font-size: 20px; line-height: 1; display: grid; place-items: center;
+}
+#sideClose:hover { background: #e3e6ec; }
+#sideClose .ic-mobile { display: none; }
+.grip { display: none; }
+
+#sideToggle {
+  position: absolute; top: 16px; left: 16px; z-index: 2;
+  border: 1px solid var(--line); border-radius: 12px;
+  background: rgba(255,255,255,.95); color: var(--ink);
+  font-size: 13px; font-weight: 600; padding: 10px 14px; cursor: pointer;
+  box-shadow: 0 2px 10px rgba(20,30,50,.08);
+}
+#sideToggle:hover { background: #fff; }
+body:not(.side-closed) #sideToggle { display: none; }
 #side h1 { font-size: 17px; font-weight: 650; margin: 0 0 6px; letter-spacing: -0.01em; }
 #side header p { margin: 0; font-size: 12.5px; line-height: 1.5; color: var(--muted); }
 
@@ -134,7 +160,7 @@ button, input { font-family: inherit; }
 .tool.on { background: #eef0f4; color: var(--ink); }
 
 #legend {
-  position: absolute; left: 16px; bottom: 16px; max-width: calc(100% - 32px);
+  position: absolute; left: 16px; bottom: 16px; max-width: 360px;
   display: flex; flex-wrap: wrap; gap: 4px 18px;
   background: rgba(255,255,255,.92); backdrop-filter: blur(6px);
   border: 1px solid var(--line); border-radius: 12px; padding: 9px 14px;
@@ -170,6 +196,54 @@ button, input { font-family: inherit; }
 .node.act .card { stroke: var(--ink); stroke-width: 1.8; }
 .node.focus .card { stroke: var(--ink); stroke-width: 2.4; }
 .node.near .card { stroke: #8b94a8; stroke-width: 1.6; }
+/* ---------- touch / phones ---------- */
+@media (pointer: coarse) {
+  .edge .hit { stroke-width: 28; }
+  .tool, .seg button { padding-top: 10px; padding-bottom: 10px; }
+  .row { padding-top: 11px; padding-bottom: 11px; }
+}
+
+@media (max-width: 760px) {
+  body { display: block; }
+  #stage { position: absolute; inset: 0; }
+
+  /* sidebar becomes a bottom sheet */
+  #side {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    width: auto; height: 64dvh;
+    border-right: 0; border-top: 1px solid var(--line);
+    border-radius: 18px 18px 0 0;
+    box-shadow: 0 -8px 30px rgba(20,30,50,.18);
+    margin-left: 0 !important;
+  }
+  body.side-closed #side { transform: translateY(104%); box-shadow: none; }
+  .grip { display: block; position: absolute; top: 8px; left: 50%; width: 38px; height: 4px; margin-left: -19px; border-radius: 2px; background: #d3d8e2; }
+  #side header { padding: 22px 56px 8px 16px; }
+  #side header p { display: none; }
+  #sideClose { top: 14px; }
+  #sideClose .ic-desktop { display: none; }
+  #sideClose .ic-mobile { display: inline; transform: translateY(-4px); }
+  .controls { padding: 4px 16px 10px; }
+  #loopList { padding: 4px 8px 8px; }
+  #detail { max-height: 34%; padding: 12px 16px 14px; }
+
+  /* toolbar becomes a scrollable strip */
+  #toolbar { top: 10px; left: 10px; right: 10px; overflow-x: auto; scrollbar-width: none; }
+  #toolbar::-webkit-scrollbar { display: none; }
+  #toolbar > * { flex: none; }
+
+  /* floating "Loops" button + single-row legend along the bottom */
+  #sideToggle { top: auto; bottom: 12px; left: 10px; padding: 11px 14px; }
+  #legend {
+    left: 120px; right: 10px; bottom: 12px; max-width: none;
+    flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none;
+    padding: 12px 12px;
+  }
+  #legend::-webkit-scrollbar { display: none; }
+  #legend hr { display: none; }
+  #legend .li { flex: none; }
+}
+
 .node .step { opacity: 0; transition: opacity .2s; }
 .node.numbered .step { opacity: 1; }
 .step circle { fill: var(--ink); stroke: #fff; stroke-width: 2; }
@@ -177,14 +251,16 @@ button, input { font-family: inherit; }
 .star { font: 13px var(--font); fill: #ec5fa8; text-anchor: middle; dominant-baseline: central; }
 
 .edge { transition: opacity .25s; }
-.edge .line { fill: none; stroke: #b3bac8; stroke-width: 1.4; transition: stroke .2s, stroke-width .2s; }
+.edge .casing { fill: none; stroke: var(--bg); stroke-width: calc(var(--w, 1.4) + 5); stroke-linecap: round; opacity: .9; }
+.edge .line { fill: none; stroke: #aab2c2; stroke-width: 1.4; stroke-linecap: round; transition: stroke .2s; }
 .edge .hit { fill: none; stroke: transparent; stroke-width: 14; cursor: pointer; }
 .edge .flow { fill: none; stroke: #fff; stroke-width: 1.6; stroke-linecap: round; stroke-dasharray: 0.1 12; opacity: 0; }
-.edge.R .line { stroke: var(--R); stroke-width: 3; }
-.edge.B .line { stroke: var(--B); stroke-width: 3; }
-.edge.RB .line { stroke: var(--RB); stroke-width: 3; }
-.edge.hov .line { stroke: #4b5568; stroke-width: 2; }
-.edge.dim { opacity: .09; }
+.edge.R .line { stroke: var(--R); }
+.edge.B .line { stroke: var(--B); }
+.edge.RB .line { stroke: var(--RB); }
+.edge.hov .line { stroke: #394152; }
+.edge.dim { opacity: .07; }
+.edge.dim .casing { opacity: 0; }
 .edge.hidden { opacity: 0; pointer-events: none; }
 .edge.R .flow, .edge.B .flow, .edge.RB .flow { opacity: 1; }
 body.noflow .edge .flow { opacity: 0 !important; }
@@ -200,3 +276,110 @@ body.noflow .edge .flow { opacity: 0 !important; }
 body.nopol .pol { display: none; }
 .info text { font: italic 700 10px var(--font); fill: #fff; text-anchor: middle; dominant-baseline: central; }
 .info circle { fill: #8b94a8; }
+
+/* ======================================================================
+   Simulation + weighting UI
+   ====================================================================== */
+
+/* ---- simulation transport bar ---- */
+#simBar {
+  position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  max-width: calc(100% - 32px);
+  background: rgba(255,255,255,.95); backdrop-filter: blur(6px);
+  border: 1px solid var(--line); border-radius: 14px; padding: 8px 12px;
+  box-shadow: 0 4px 18px rgba(20,30,50,.12); z-index: 4;
+}
+.sim-btn {
+  border: 0; border-radius: 9px; cursor: pointer;
+  font-size: 13px; font-weight: 600; padding: 9px 14px;
+  background: var(--ink); color: #fff;
+}
+.sim-btn.ghost { background: #eef0f4; color: var(--ink); }
+.sim-btn.on { background: var(--up); }
+.sim-btn:hover { filter: brightness(1.05); }
+.sim-speed { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+.sim-speed input { width: 90px; accent-color: var(--ink); }
+.sim-help { font-size: 11.5px; color: var(--muted); max-width: 260px; line-height: 1.4; }
+
+/* legend/sim bar share the bottom: when simulating, nudge the legend up a touch */
+body.sim-on #legend { bottom: 76px; }
+
+/* ---- "Simulate" tool gets an accent when on ---- */
+#btnSim.on { background: var(--up); color: #fff; }
+
+/* ---- node value fill + readout ---- */
+.valfill { transition: y .12s linear, height .12s linear, opacity .2s; }
+.valtext { font: 700 11px var(--font); text-anchor: end; dominant-baseline: central; }
+
+/* ---- nudge handle (only visible in sim mode) ---- */
+.nudge { opacity: 0; pointer-events: none; transition: opacity .18s; cursor: ns-resize; }
+body.sim-on .node:not(.hidden) .nudge { opacity: 1; pointer-events: auto; }
+body.sim-on .node.dim .nudge { opacity: .25; }
+.nudge-bg { fill: #fff; stroke: var(--line); stroke-width: 1; filter: drop-shadow(0 1px 3px rgba(20,30,50,.14)); }
+.nudge-btn circle { fill: transparent; }
+.nudge-btn:hover circle { fill: #eef0f4; }
+.nudge-btn.up:hover .chev { stroke: var(--up-ink); }
+.nudge-btn.dn:hover .chev { stroke: var(--down-ink); }
+.chev { fill: none; stroke: #8b94a8; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ---- weighted link line thickness ---- */
+.edge .line { stroke-width: var(--w, 1.4); }
+.edge.R .line, .edge.B .line, .edge.RB .line { stroke-width: calc(var(--w, 3) + 1.2); }
+.edge.hov .line { stroke-width: calc(var(--w, 2) + 1); }
+.edge.editing .line { stroke: var(--ink); stroke-width: calc(var(--w, 2) + 1.4); }
+
+/* ---- polarity/weight badge ---- */
+.pol text { font: 700 10.5px var(--font); }
+.pol.neg circle { stroke: var(--down); }
+.pol.neg text { fill: var(--down-ink); }
+.pol.marked.neg circle { fill: var(--down); stroke: var(--down); }
+.pol.zero { opacity: .55; }
+.pol.zero circle { stroke-dasharray: 2 2; }
+.pol:hover circle { stroke: var(--ink); }
+.pol { cursor: pointer; }
+body.nopol .pol { display: none; }
+.edge.editing .pol circle { stroke: var(--ink); stroke-width: 2; }
+
+/* ---- weight popover ---- */
+#weightPop {
+  position: absolute; z-index: 20; width: 290px;
+  background: #fff; border: 1px solid var(--line); border-radius: 14px;
+  padding: 13px 14px; box-shadow: 0 10px 34px rgba(20,30,50,.22);
+}
+.wp-title { font-size: 13px; line-height: 1.45; margin-bottom: 4px; }
+.wp-title b { font-weight: 650; }
+.wp-arrow { color: var(--muted); }
+.wp-hint { font-size: 11.5px; color: var(--muted); line-height: 1.4; margin-bottom: 11px; }
+.wp-row { display: flex; align-items: center; gap: 9px; }
+.wp-sign {
+  flex: none; width: 30px; height: 30px; border-radius: 9px; cursor: pointer;
+  border: 1px solid var(--line); background: #f3f8f4; color: var(--up-ink);
+  font-size: 17px; font-weight: 700; line-height: 1;
+}
+.wp-sign.neg { background: #fdeceb; color: var(--down-ink); }
+.wp-slider { flex: 1; accent-color: var(--ink); }
+.wp-num {
+  flex: none; width: 54px; border: 1px solid var(--line); border-radius: 8px;
+  padding: 6px 7px; font-size: 13px; text-align: right; color: var(--ink);
+}
+.wp-pct { color: var(--muted); font-size: 13px; margin-left: -4px; }
+.wp-foot { display: flex; justify-content: space-between; margin-top: 11px; }
+.wp-link { border: 0; background: transparent; color: var(--muted); font-size: 12px; cursor: pointer; padding: 2px 2px; }
+.wp-link:hover { color: var(--ink); text-decoration: underline; }
+.wp-link:last-child { color: var(--ink); font-weight: 600; }
+
+/* ---- detail panel: live loop strength bar ---- */
+.loopgain { margin-top: 10px; }
+.loopgain .lab { font-size: 11.5px; color: var(--muted); display: flex; justify-content: space-between; margin-bottom: 4px; }
+.loopgain .track { height: 7px; border-radius: 4px; background: #eef0f4; overflow: hidden; }
+.loopgain .fillbar { height: 100%; border-radius: 4px; }
+
+/* ---- phones: stack the sim bar, keep it reachable ---- */
+@media (max-width: 760px) {
+  #simBar { left: 10px; right: 10px; bottom: 10px; transform: none; max-width: none; justify-content: flex-start; }
+  .sim-help { display: none; }
+  body.sim-on #legend { display: none; }
+  body.sim-on #sideToggle { bottom: 70px; }
+  #weightPop { width: calc(100% - 20px); }
+}
